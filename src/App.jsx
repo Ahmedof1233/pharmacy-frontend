@@ -21,12 +21,6 @@ function App() {
 // ==========================================
 // 1. لوحة تحكم الصيدلي (Admin Dashboard)
 // ==========================================
-// ==========================================
-// 1. لوحة تحكم الصيدلي (Admin Dashboard)
-// ==========================================
-// ==========================================
-// 1. لوحة تحكم الصيدلي (Admin Dashboard)
-// ==========================================
 function AdminDashboard() {
   const [fullName, setFullName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -94,7 +88,7 @@ function AdminDashboard() {
 
     try {
       // إرسال البيانات (الاسم، الهاتف، وقائمة الأدوية المكتوبة) إلى السيرفر
-      await axios.post('https://pharmacy-api-self.vercel.app/api/patients', {
+      await axios.post('https://pharmacy-api-63y1.vercel.app/api/patients', {
         qr_uuid: newUuid,
         full_name: cleanName,
         phone_number: phoneNumber, 
@@ -282,7 +276,7 @@ function PatientOrderPage() {
   useEffect(() => {
     const fetchPatient = async () => {
       try {
-       const response = await axios.get(`https://pharmacy-api-self.vercel.app/api/patient/${qrUuid}`);
+        const response = await axios.get(`https://pharmacy-api-63y1.vercel.app/api/patient/${qrUuid}`);
         if (response.data.success) {
           setPatientData(response.data.data);
           // تحديد كل الأدوية تلقائياً كمبدأ افتراضي لتسهيل الطلب

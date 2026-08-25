@@ -94,14 +94,14 @@ function AdminDashboard() {
 
     try {
       // إرسال البيانات (الاسم، الهاتف، وقائمة الأدوية المكتوبة) إلى السيرفر
-      await axios.post('https://pharmacy-api-63y1.vercel.app/', {
+      await axios.post('https://pharmacy-api-self.vercel.app/api/patients', {
         qr_uuid: newUuid,
         full_name: cleanName,
         phone_number: phoneNumber, 
         medications: medicationsList
       });
 
-      const patientUrl = `https://pharmacy-api-63y1.vercel.app/patient/${newUuid}`;
+      const patientUrl = `${window.location.origin}/patient/${newUuid}`;
       setGeneratedData({ name: cleanName, url: patientUrl });
       
       // تفريغ كل الحقول بعد النجاح
@@ -271,7 +271,7 @@ function PatientOrderPage() {
   useEffect(() => {
     const fetchPatient = async () => {
       try {
-        const response = await axios.get(`https://pharmacy-api-63y1.vercel.app/api/patient/${qrUuid}`);
+       const response = await axios.get(`https://pharmacy-api-self.vercel.app/api/patient/${qrUuid}`);
         if (response.data.success) {
           setPatientData(response.data.data);
           // تحديد كل الأدوية تلقائياً كمبدأ افتراضي لتسهيل الطلب

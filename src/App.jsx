@@ -243,15 +243,26 @@ function AdminDashboard() {
         )}
       </div>
 
+      {/* قسم الطباعة فقط */}
       {generatedData && (
-        <div className="hidden print:flex flex-col items-center justify-center w-full h-screen text-center">
-          <div className="border-2 border-black p-4 inline-block rounded-xl">
-            <p className="font-bold text-xl mb-1">صيدلية ...</p>
-            <p className="text-md font-semibold mb-3 border-b border-black pb-2">المريض: {generatedData.name}</p>
-            <QRCodeCanvas value={generatedData.url} size={130} level={"H"} />
-            <p className="text-sm mt-3 font-bold">امسح الكود لتجديد علاجك</p>
+        <>
+          {/* كود CSS مصغر لضبط إعدادات الطابعة وإخفاء التاريخ ورابط الموقع */}
+          <style type="text/css" media="print">
+            {`
+              @page { size: auto; margin: 0mm; }
+              body { margin: 10mm; padding: 0; }
+            `}
+          </style>
+          
+          <div className="hidden print:flex flex-col items-start justify-start w-full text-center">
+            <div className="border-2 border-black p-4 inline-block rounded-xl">
+              <p className="font-bold text-xl mb-1">صيدلية ...</p>
+              <p className="text-md font-semibold mb-3 border-b border-black pb-2">المريض: {generatedData.name}</p>
+              <QRCodeCanvas value={generatedData.url} size={130} level={"H"} />
+              <p className="text-sm mt-3 font-bold">امسح الكود لتجديد علاجك</p>
+            </div>
           </div>
-        </div>
+        </>
       )}
     </div>
   );

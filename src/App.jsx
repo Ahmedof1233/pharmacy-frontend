@@ -223,8 +223,8 @@ function AdminDashboard() {
         {generatedData && (
           <div className="mt-8 p-6 bg-emerald-50 border border-emerald-100 rounded-xl flex flex-col items-center">
             <h2 className="text-lg font-bold text-emerald-700 mb-3">✅ تم ربط المريض والأدوية بنجاح!</h2>
-            <div className="bg-white p-4 rounded-xl shadow-sm border border-emerald-100 mb-4">
-              <QRCodeCanvas value={generatedData.url} size={150} level={"H"} />
+            <div className="bg-white p-4 rounded-xl shadow-sm border border-emerald-100 mb-4" style={{display:'inline-block'}}>
+              <QRCodeCanvas value={generatedData.url} size={300} level={"H"} style={{width:'113px',height:'113px'}} />
             </div>
             <button 
               onClick={() => window.print()}
@@ -252,7 +252,7 @@ function AdminDashboard() {
             <div className="border-2 border-black p-4 inline-block rounded-xl">
               <p className="font-bold text-xl mb-1">صيدلية ...</p>
               <p className="text-md font-semibold mb-3 border-b border-black pb-2">المريض: {generatedData.name}</p>
-              <QRCodeCanvas value={generatedData.url} size={130} level={"H"} />
+              <QRCodeCanvas value={generatedData.url} size={300} level={"H"} style={{width:'3cm',height:'3cm',display:'block'}} />
               <p className="text-sm mt-3 font-bold">امسح الكود لتجديد علاجك</p>
             </div>
           </div>

@@ -112,8 +112,41 @@ function AdminDashboard() {
   };
 
   return (
+    <>
+    {/* CSS \u0627\u0644\u0637\u0628\u0627\u0639\u0629 \u0627\u0644\u062d\u0631\u0627\u0631\u064a\u0629 - \u0633\u062a\u064a\u0643\u0631 3\u0633\u0645 \u00d7 3\u0633\u0645 */}
+    <style type="text/css">
+      {`
+        @media print {
+          @page {
+            size: 3cm 3cm;
+            margin: 0;
+          }
+          html, body {
+            width: 3cm;
+            height: 3cm;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: hidden;
+          }
+          .no-print {
+            display: none !important;
+          }
+          #sticker-print {
+            display: flex !important;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 3cm;
+            height: 3cm;
+            padding: 1mm;
+            box-sizing: border-box;
+          }
+        }
+      `}
+    </style>
+
     <div className="no-print min-h-screen bg-gray-100 p-6 font-sans">
-      <div className="max-w-xl mx-auto bg-white rounded-2xl shadow-md p-8 print:hidden">
+      <div className="max-w-xl mx-auto bg-white rounded-2xl shadow-md p-8">
         <h1 className="text-2xl font-bold text-gray-800 mb-6 border-b pb-4">
           💊 إضافة مريض جديد
         </h1>
@@ -236,72 +269,38 @@ function AdminDashboard() {
           </div>
         )}
       </div>
-
-      {/* قسم الطباعة فقط */}
-      {generatedData && (
-        <>
-          {/* CSS الطباعة الحرارية - ستيكر 3سم × 3سم */}
-          <style type="text/css">
-            {`
-              @media print {
-                @page {
-                  size: 3cm 3cm;
-                  margin: 0;
-                }
-                html, body {
-                  width: 3cm;
-                  height: 3cm;
-                  margin: 0 !important;
-                  padding: 0 !important;
-                  overflow: hidden;
-                }
-                .no-print {
-                  display: none !important;
-                }
-                #sticker-print {
-                  display: flex !important;
-                  flex-direction: column;
-                  align-items: center;
-                  justify-content: center;
-                  width: 3cm;
-                  height: 3cm;
-                }
-              }
-            `}
-          </style>
-
-          <div
-            id="sticker-print"
-            style={{
-              display: 'none',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: '3cm',
-              height: '3cm',
-              padding: '1mm',
-              boxSizing: 'border-box',
-              fontFamily: 'Arial, sans-serif',
-              textAlign: 'center',
-              overflow: 'hidden',
-              position: 'fixed',
-              top: 0,
-              left: 0,
-            }}
-          >
-            <p style={{ fontSize: '6pt', fontWeight: 'bold', margin: '0 0 0.5mm 0', lineHeight: 1.1 }}>صيدلية ...</p>
-            <p style={{ fontSize: '5.5pt', fontWeight: '600', margin: '0 0 1mm 0', lineHeight: 1.1 }}>{generatedData.name}</p>
-            <QRCodeCanvas
-              value={generatedData.url}
-              size={300}
-              level="H"
-              style={{ width: '2.2cm', height: '2.2cm', display: 'block' }}
-            />
-            <p style={{ fontSize: '5pt', margin: '0.5mm 0 0 0', lineHeight: 1.1 }}>امسح الكود لتجديد علاجك</p>
-          </div>
-        </>
-      )}
     </div>
+
+    {/* ستيكر الطباعة - خارج .no-print تماماً */}
+    {generatedData && (
+      <div
+        id="sticker-print"
+        style={{
+          display: 'none',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: '3cm',
+          height: '3cm',
+          padding: '1mm',
+          boxSizing: 'border-box',
+          fontFamily: 'Arial, sans-serif',
+          textAlign: 'center',
+          overflow: 'hidden',
+        }}
+      >
+        <p style={{ fontSize: '6pt', fontWeight: 'bold', margin: '0 0 0.5mm 0', lineHeight: 1.1 }}>صيدلية ...</p>
+        <p style={{ fontSize: '5.5pt', fontWeight: '600', margin: '0 0 1mm 0', lineHeight: 1.1 }}>{generatedData.name}</p>
+        <QRCodeCanvas
+          value={generatedData.url}
+          size={300}
+          level="H"
+          style={{ width: '2.2cm', height: '2.2cm', display: 'block' }}
+        />
+        <p style={{ fontSize: '5pt', margin: '0.5mm 0 0 0', lineHeight: 1.1 }}>امسح الكود لتجديد علاجك</p>
+      </div>
+    )}
+    </>
   );
 }
 

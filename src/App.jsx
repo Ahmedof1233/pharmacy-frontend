@@ -112,7 +112,7 @@ function AdminDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6 font-sans">
+    <div className="no-print min-h-screen bg-gray-100 p-6 font-sans">
       <div className="max-w-xl mx-auto bg-white rounded-2xl shadow-md p-8 print:hidden">
         <h1 className="text-2xl font-bold text-gray-800 mb-6 border-b pb-4">
           💊 إضافة مريض جديد
@@ -241,22 +241,32 @@ function AdminDashboard() {
       {generatedData && (
         <>
           {/* CSS الطباعة الحرارية - ستيكر 3سم × 3سم */}
-          <style type="text/css" media="print">
+          <style type="text/css">
             {`
-              @page {
-                size: 3cm 3cm;
-                margin: 0;
+              @media print {
+                @page {
+                  size: 3cm 3cm;
+                  margin: 0;
+                }
+                html, body {
+                  width: 3cm;
+                  height: 3cm;
+                  margin: 0 !important;
+                  padding: 0 !important;
+                  overflow: hidden;
+                }
+                .no-print {
+                  display: none !important;
+                }
+                #sticker-print {
+                  display: flex !important;
+                  flex-direction: column;
+                  align-items: center;
+                  justify-content: center;
+                  width: 3cm;
+                  height: 3cm;
+                }
               }
-              html, body {
-                width: 3cm;
-                height: 3cm;
-                margin: 0 !important;
-                padding: 0 !important;
-                overflow: hidden;
-              }
-              /* إخفاء كل شيء ما عدا الستيكر */
-              body > * { display: none !important; }
-              #sticker-print { display: flex !important; }
             `}
           </style>
 
@@ -274,6 +284,9 @@ function AdminDashboard() {
               fontFamily: 'Arial, sans-serif',
               textAlign: 'center',
               overflow: 'hidden',
+              position: 'fixed',
+              top: 0,
+              left: 0,
             }}
           >
             <p style={{ fontSize: '6pt', fontWeight: 'bold', margin: '0 0 0.5mm 0', lineHeight: 1.1 }}>صيدلية ...</p>

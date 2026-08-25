@@ -240,21 +240,51 @@ function AdminDashboard() {
       {/* قسم الطباعة فقط */}
       {generatedData && (
         <>
-          {/* كود CSS مصغر لضبط إعدادات الطابعة وإخفاء التاريخ ورابط الموقع */}
+          {/* CSS الطباعة الحرارية - ستيكر 3سم × 3سم */}
           <style type="text/css" media="print">
             {`
-              @page { size: auto; margin: 0mm; }
-              body { margin: 10mm; padding: 0; }
+              @page {
+                size: 3cm 3cm;
+                margin: 0;
+              }
+              html, body {
+                width: 3cm;
+                height: 3cm;
+                margin: 0 !important;
+                padding: 0 !important;
+                overflow: hidden;
+              }
+              /* إخفاء كل شيء ما عدا الستيكر */
+              body > * { display: none !important; }
+              #sticker-print { display: flex !important; }
             `}
           </style>
-          
-          <div className="hidden print:flex flex-col items-start justify-start w-full text-center">
-            <div className="border-2 border-black p-4 inline-block rounded-xl">
-              <p className="font-bold text-xl mb-1">صيدلية ...</p>
-              <p className="text-md font-semibold mb-3 border-b border-black pb-2">المريض: {generatedData.name}</p>
-              <QRCodeCanvas value={generatedData.url} size={300} level={"H"} style={{width:'3cm',height:'3cm',display:'block'}} />
-              <p className="text-sm mt-3 font-bold">امسح الكود لتجديد علاجك</p>
-            </div>
+
+          <div
+            id="sticker-print"
+            style={{
+              display: 'none',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '3cm',
+              height: '3cm',
+              padding: '1mm',
+              boxSizing: 'border-box',
+              fontFamily: 'Arial, sans-serif',
+              textAlign: 'center',
+              overflow: 'hidden',
+            }}
+          >
+            <p style={{ fontSize: '6pt', fontWeight: 'bold', margin: '0 0 0.5mm 0', lineHeight: 1.1 }}>صيدلية ...</p>
+            <p style={{ fontSize: '5.5pt', fontWeight: '600', margin: '0 0 1mm 0', lineHeight: 1.1 }}>{generatedData.name}</p>
+            <QRCodeCanvas
+              value={generatedData.url}
+              size={300}
+              level="H"
+              style={{ width: '2.2cm', height: '2.2cm', display: 'block' }}
+            />
+            <p style={{ fontSize: '5pt', margin: '0.5mm 0 0 0', lineHeight: 1.1 }}>امسح الكود لتجديد علاجك</p>
           </div>
         </>
       )}

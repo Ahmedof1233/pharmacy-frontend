@@ -58,14 +58,14 @@ function AdminDashboard() {
     if (currentMedName.trim() === '') return;
     
     const newMed = {
-      id: Date.now(), // كود مؤقت لتمييز الدواء في الواجهة
+      id: Date.now(),
       name: currentMedName.trim(),
       dosage: currentMedDosage.trim() || 'الجرعة الاعتيادية',
-      price: 0 // يمكن تحديثه لاحقاً أو تجاهله
+      price: 0
     };
 
     setMedicationsList([...medicationsList, newMed]);
-    setCurrentMedName(''); // تفريغ الخانة لكتابة الدواء التالي
+    setCurrentMedName('');
     setCurrentMedDosage('');
   };
 
@@ -87,7 +87,6 @@ function AdminDashboard() {
     const newUuid = uuidv4();
 
     try {
-      // إرسال البيانات (الاسم، الهاتف، وقائمة الأدوية المكتوبة) إلى السيرفر
       await axios.post('https://pharmacy-api-63y1.vercel.app/api/patients', {
         qr_uuid: newUuid,
         full_name: cleanName,
@@ -96,9 +95,9 @@ function AdminDashboard() {
       });
 
       const patientUrl = `${window.location.origin}/patient/${newUuid}`;
-      setGeneratedData({ name: cleanName, url: patientUrl });
+      // تمرير قائمة الأدوية لقسم الطباعة
+      setGeneratedData({ name: cleanName, url: patientUrl, medications: [...medicationsList] });
       
-      // تفريغ كل الحقول بعد النجاح
       setFullName('');
       setPhoneNumber('');
       setMedicationsList([]);
@@ -113,7 +112,7 @@ function AdminDashboard() {
 
   return (
     <>
-    {/* CSS \u0627\u0644\u0637\u0628\u0627\u0639\u0629 \u0627\u0644\u062d\u0631\u0627\u0631\u064a\u0629 - \u0633\u062a\u064a\u0643\u0631 3\u0633\u0645 \u00d7 3\u0633\u0645 */}
+    {/* CSS الطباعة الحرارية المطور - يدعم تعدد الملصقات */}
     <style type="text/css">
       {`
         @media print {
@@ -123,15 +122,15 @@ function AdminDashboard() {
           }
           html, body {
             width: 3cm;
-            height: 3cm;
             margin: 0 !important;
             padding: 0 !important;
-            overflow: hidden;
+            background: white;
           }
           .no-print {
             display: none !important;
           }
-          #sticker-print {
+          /* تنسيق صفحة الملصق الواحد */
+          .sticker-print-page {
             display: flex !important;
             flex-direction: column;
             align-items: center;
@@ -140,7 +139,21 @@ function AdminDashboard() {
             height: 3cm;
             padding: 1mm;
             box-sizing: border-box;
+            /* السطر السحري لفصل كل دواء في ملصق لوحده */
+            page-break-after: always;
+            break-after: page;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            overflow: hidden;
           }
+          
+          /* أحجام الخطوط المضبوطة لمقاس 3سم */
+          .p-title { font-size: 5pt; font-weight: bold; margin: 0 0 0.5mm 0; line-height: 1; }
+          .p-med { font-size: 6pt; font-weight: 900; margin: 0 0 0.5mm 0; line-height: 1.1; }
+          .p-dos { font-size: 5pt; font-weight: 600; margin: 0 0 1mm 0; line-height: 1; }
+          .p-name { font-size: 4.5pt; font-weight: bold; margin: 0.5mm 0 0 0; line-height: 1; }
+          .p-scan { font-size: 4.5pt; margin: 0.5mm 0 0 0; line-height: 1; }
+          .qr-img { width: 1.6cm !important; height: 1.6cm !important; display: block; }
         }
       `}
     </style>
@@ -152,70 +165,45 @@ function AdminDashboard() {
         </h1>
         
         <form onSubmit={handleSubmit} className="space-y-6">
-          
-          {/* حقل إدخال الاسم المحمي */}
           <div>
             <label className="block text-gray-700 font-semibold mb-2">اسم المريض (حروف فقط)</label>
             <input 
-              type="text" 
-              required
-              maxLength={40}
-              value={fullName}
-              onChange={handleNameChange}
+              type="text" required maxLength={40} value={fullName} onChange={handleNameChange}
               className={`w-full border rounded-xl p-3 outline-none transition-all ${errorMsg ? 'border-red-500 focus:ring-2 focus:ring-red-500' : 'border-gray-300 focus:ring-2 focus:ring-blue-500'}`}
-              placeholder="مثال: أحمد محمود"
-              autoComplete="off"
+              placeholder="مثال: أحمد محمود" autoComplete="off"
             />
             {errorMsg && <p className="text-red-500 text-sm mt-1 font-semibold">{errorMsg}</p>}
           </div>
 
-          {/* حقل إدخال رقم الهاتف */}
           <div>
             <label className="block text-gray-700 font-semibold mb-2">رقم الهاتف (واتساب)</label>
             <input 
-              type="tel" 
-              required
-              maxLength={15}
-              value={phoneNumber}
-              onChange={handlePhoneChange}
+              type="tel" required maxLength={15} value={phoneNumber} onChange={handlePhoneChange}
               className="w-full border border-gray-300 rounded-xl p-3 outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-              placeholder="مثال: 010xxxxxxxx"
-              autoComplete="off"
+              placeholder="مثال: 010xxxxxxxx" autoComplete="off"
             />
           </div>
 
-          {/* قسم إدخال الأدوية ديناميكياً */}
           <div className="border-t pt-4 bg-gray-50 p-4 rounded-xl border border-gray-200">
             <label className="block text-gray-800 font-bold mb-3">إضافة أدوية المريض (الروشتة):</label>
-            
             <div className="flex flex-col sm:flex-row gap-2 mb-3">
               <input 
-                type="text" 
-                value={currentMedName}
-                onChange={(e) => setCurrentMedName(e.target.value)}
+                type="text" value={currentMedName} onChange={(e) => setCurrentMedName(e.target.value)}
                 className="flex-1 border border-gray-300 rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="اسم الدواء (مثال: كونكور 5)"
-                onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddMedication(); } }}
+                placeholder="اسم الدواء (مثال: كونكور 5)" onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddMedication(); } }}
               />
               <input 
-                type="text" 
-                value={currentMedDosage}
-                onChange={(e) => setCurrentMedDosage(e.target.value)}
+                type="text" value={currentMedDosage} onChange={(e) => setCurrentMedDosage(e.target.value)}
                 className="flex-1 border border-gray-300 rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="الجرعة (اختياري)"
-                onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddMedication(); } }}
+                placeholder="الجرعة (اختياري)" onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddMedication(); } }}
               />
               <button 
-                type="button" 
-                onClick={handleAddMedication}
-                disabled={currentMedName.trim() === ''}
+                type="button" onClick={handleAddMedication} disabled={currentMedName.trim() === ''}
                 className="bg-gray-800 hover:bg-black text-white font-bold px-4 py-2.5 rounded-lg transition-all disabled:bg-gray-400"
               >
                 إضافة
               </button>
             </div>
-
-            {/* عرض الأدوية التي تم إضافتها */}
             {medicationsList.length > 0 ? (
               <div className="space-y-2 mt-4">
                 {medicationsList.map((med, index) => (
@@ -227,13 +215,8 @@ function AdminDashboard() {
                         <p className="text-xs text-gray-500">{med.dosage}</p>
                       </div>
                     </div>
-                    <button 
-                      type="button" 
-                      onClick={() => handleRemoveMedication(med.id)}
-                      className="text-red-500 hover:bg-red-50 p-2 rounded-lg transition-all"
-                      title="حذف الدواء"
-                    >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                    <button type="button" onClick={() => handleRemoveMedication(med.id)} className="text-red-500 hover:bg-red-50 p-2 rounded-lg transition-all">
+                      حذف
                     </button>
                   </div>
                 ))}
@@ -244,15 +227,13 @@ function AdminDashboard() {
           </div>
 
           <button 
-            type="submit"
-            disabled={loading || errorMsg.length > 0 || fullName.length === 0}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-4 rounded-xl transition-all shadow-lg shadow-blue-200 disabled:bg-gray-400 disabled:shadow-none mt-4"
+            type="submit" disabled={loading || errorMsg.length > 0 || fullName.length === 0}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-4 rounded-xl transition-all shadow-lg shadow-blue-200 disabled:bg-gray-400 mt-4"
           >
             {loading ? 'جاري الحفظ...' : 'حفظ البيانات وتوليد الـ QR Code'}
           </button>
         </form>
 
-        {/* عرض الكود بعد الحفظ */}
         {generatedData && (
           <div className="mt-8 p-6 bg-emerald-50 border border-emerald-100 rounded-xl flex flex-col items-center">
             <h2 className="text-lg font-bold text-emerald-700 mb-3">✅ تم ربط المريض والأدوية بنجاح!</h2>
@@ -263,41 +244,37 @@ function AdminDashboard() {
               onClick={() => window.print()}
               className="bg-gray-900 hover:bg-black text-white font-bold py-2 px-6 rounded-xl transition-all flex items-center gap-2"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-              طباعة الملصق
+              طباعة الملصقات
             </button>
           </div>
         )}
       </div>
     </div>
 
-    {/* ستيكر الطباعة - خارج .no-print تماماً */}
+    {/* قسم الطباعة الديناميكي المخفي عن الشاشة */}
     {generatedData && (
-      <div
-        id="sticker-print"
-        style={{
-          display: 'none',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          width: '3cm',
-          height: '3cm',
-          padding: '1mm',
-          boxSizing: 'border-box',
-          fontFamily: 'Arial, sans-serif',
-          textAlign: 'center',
-          overflow: 'hidden',
-        }}
-      >
-        <p style={{ fontSize: '6pt', fontWeight: 'bold', margin: '0 0 0.5mm 0', lineHeight: 1.1 }}>صيدلية ...</p>
-        <p style={{ fontSize: '5.5pt', fontWeight: '600', margin: '0 0 1mm 0', lineHeight: 1.1 }}>{generatedData.name}</p>
-        <QRCodeCanvas
-          value={generatedData.url}
-          size={300}
-          level="H"
-          style={{ width: '2.2cm', height: '2.2cm', display: 'block' }}
-        />
-        <p style={{ fontSize: '5pt', margin: '0.5mm 0 0 0', lineHeight: 1.1 }}>امسح الكود لتجديد علاجك</p>
+      <div className="hidden print:block">
+        {generatedData.medications && generatedData.medications.length > 0 ? (
+          // عمل حلقة تكرار لطباعة ملصق منفصل لكل دواء
+          generatedData.medications.map((med, index) => (
+            <div key={index} className="sticker-print-page">
+              <p className="p-title">صيدلية ...</p>
+              <p className="p-med">{med.name}</p>
+              <p className="p-dos">{med.dosage}</p>
+              {/* تصغير مستوى تصحيح الخطأ لـ M لضمان سهولة قراءة الباركود الصغير */}
+              <QRCodeCanvas value={generatedData.url} size={200} level="M" className="qr-img" />
+              <p className="p-name">المريض: {generatedData.name}</p>
+            </div>
+          ))
+        ) : (
+          // ملصق افتراضي في حالة عدم وجود أدوية
+          <div className="sticker-print-page">
+            <p className="p-title">صيدلية ...</p>
+            <p className="p-name" style={{margin: '0 0 1mm 0', fontSize: '5.5pt'}}>المريض: {generatedData.name}</p>
+            <QRCodeCanvas value={generatedData.url} size={200} level="M" className="qr-img" />
+            <p className="p-scan">امسح الكود لتجديد علاجك</p>
+          </div>
+        )}
       </div>
     )}
     </>
@@ -350,7 +327,7 @@ function PatientOrderPage() {
     message += `أريد طلب الأدوية التالية:\n\n`;
 
     orderedMeds.forEach((med, index) => {
-      message += `${index + 1}. *${med.name}* (الكمية الشهريّة: ${med.quantity_per_month})\n`;
+      message += `${index + 1}. *${med.name}\n`;
     });
 
     message += `\nيرجى تجهيز الطلب في أسرع وقت. شكراً!`;

@@ -117,11 +117,11 @@ function AdminDashboard() {
       {`
         @media print {
           @page {
-            size: 4cm 7cm;
+            size: 6cm 4cm;
             margin: 0;
           }
           html, body {
-            width: 4cm;
+            width: 6cm;
             margin: 0 !important;
             padding: 0 !important;
             background: white;
@@ -129,31 +129,33 @@ function AdminDashboard() {
           .no-print {
             display: none !important;
           }
-          /* تنسيق صفحة الملصق الواحد - 3cm عرض × 5cm طول */
+          /* تنسيق صفحة الملصق الواحد - 6cm عرض × 4cm طول */
           .sticker-print-page {
             display: flex !important;
-            flex-direction: column;
+            flex-direction: row;
             align-items: center;
-            justify-content: flex-start;
-            width: 4cm;
-            height: 7cm;
-            padding: 1.5mm 1mm 1mm 1mm;
+            justify-content: space-between;
+            width: 6cm;
+            height: 4cm;
+            padding: 1.5mm 2mm;
             box-sizing: border-box;
               /* السطر السحري لفصل كل دواء في ملصق لوحده */
             page-break-after: always;
             break-after: page;
             font-family: Arial, sans-serif;
-            text-align: center;
+            text-align: right;
             overflow: hidden;
           }
           
-          /* أحجام الخطوط المضبوطة لمقاس 4×7 سم */
-          .p-title  { font-size: 6pt;   font-weight: bold; margin: 0 0 1mm 0;   line-height: 1.2; }
-          .p-name   { font-size: 7pt;   font-weight: bold; margin: 0 0 0.8mm 0; line-height: 1.2; }
-          .p-med    { font-size: 6.5pt; font-weight: 900; margin: 0 0 0.5mm 0; line-height: 1.2; }
-          .p-dos    { font-size: 6pt;   font-weight: 600; margin: 0 0 1mm 0;   line-height: 1.2; }
-          .p-scan   { font-size: 5.5pt; margin: 1mm 0 0 0;   line-height: 1.2; }
-          .qr-img   { width: 3.2cm !important; height: 3.2cm !important; display: block; margin: 1.5mm auto; }
+          /* أحجام الخطوط المضبوطة لمقاس 6×4 سم */
+          .sticker-text-col { display: flex; flex-direction: column; justify-content: center; align-items: flex-end; flex: 1; padding-right: 1.5mm; gap: 1mm; }
+          .sticker-qr-col   { display: flex; flex-direction: column; align-items: center; justify-content: center; flex-shrink: 0; }
+          .p-title  { font-size: 7pt;   font-weight: bold; margin: 0;  line-height: 1.3; }
+          .p-name   { font-size: 7.5pt; font-weight: bold; margin: 0;  line-height: 1.3; }
+          .p-med    { font-size: 7pt;   font-weight: 900;  margin: 0;  line-height: 1.3; }
+          .p-dos    { font-size: 6.5pt; font-weight: 600;  margin: 0;  line-height: 1.3; }
+          .p-scan   { font-size: 5.5pt; margin: 1.5mm 0 0 0; line-height: 1.2; text-align: center; }
+          .qr-img   { width: 3.2cm !important; height: 3.2cm !important; display: block; }
         }
       `}
     </style>
@@ -258,23 +260,31 @@ function AdminDashboard() {
           // عمل حلقة تكرار لطباعة ملصق منفصل لكل دواء
           generatedData.medications.map((med, index) => (
             <div key={index} className="sticker-print-page">
-              {/* ترتيب مطابق للصورة: لوجو → اسم مريض → دواء → استخدام → QR → فوتر */}
-              <p className="p-title">صيدلية الطيب</p>
-              <p className="p-name">اسم المريض: {generatedData.name}</p>
-              <p className="p-med">اسم الدواء: {med.name}</p>
-              <p className="p-dos">الاستخدام: {med.dosage}</p>
-              {/* QR Code كبير يملأ المساحة */}
-              <QRCodeCanvas value={generatedData.url} size={300} level="H" className="qr-img" />
-              <p className="p-scan">دايم طيب ♥</p>
+              {/* QR على اليسار */}
+              <div className="sticker-qr-col">
+                <QRCodeCanvas value={generatedData.url} size={300} level="H" className="qr-img" />
+                <p className="p-scan">دايم طيب ♥</p>
+              </div>
+              {/* النصوص على اليمين */}
+              <div className="sticker-text-col">
+                <p className="p-title">صيدلية الطيب</p>
+                <p className="p-name">اسم المريض: {generatedData.name}</p>
+                <p className="p-med">اسم الدواء: {med.name}</p>
+                <p className="p-dos">الاستخدام: {med.dosage}</p>
+              </div>
             </div>
           ))
         ) : (
           // ملصق افتراضي في حالة عدم وجود أدوية
           <div className="sticker-print-page">
-            <p className="p-title">صيدلية الطيب</p>
-            <p className="p-name">اسم المريض: {generatedData.name}</p>
-            <QRCodeCanvas value={generatedData.url} size={300} level="H" className="qr-img" />
-            <p className="p-scan">دايم طيب ♥</p>
+            <div className="sticker-qr-col">
+              <QRCodeCanvas value={generatedData.url} size={300} level="H" className="qr-img" />
+              <p className="p-scan">دايم طيب ♥</p>
+            </div>
+            <div className="sticker-text-col">
+              <p className="p-title">صيدلية الطيب</p>
+              <p className="p-name">اسم المريض: {generatedData.name}</p>
+            </div>
           </div>
         )}
       </div>
